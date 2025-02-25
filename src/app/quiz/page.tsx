@@ -27,12 +27,18 @@ export default function QuizZone() {
   const fetchQuizzes = async () => {
     try {
       setLoading(true);
+      console.log('Page: Fetching quizzes...');
       const data = await quizService.getAllQuizzes();
+      console.log('Page: Quizzes fetched successfully:', data);
       setQuizzes(data);
       setError(null);
     } catch (err) {
-      setError('Failed to fetch quizzes');
-      console.error(err);
+      console.error('Page: Error fetching quizzes:', err);
+      if (err instanceof Error) {
+        setError(`Failed to fetch quizzes: ${err.message}`);
+      } else {
+        setError('Failed to fetch quizzes: Unknown error');
+      }
     } finally {
       setLoading(false);
     }
@@ -57,12 +63,34 @@ export default function QuizZone() {
     );
   }
 
-  if (error) {
+   if (error) {
     return (
       <div className="flex h-screen">
         <Sidebar />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-lg text-red-500">{error}</div>
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-3xl w-full">
+            <h2 className="text-xl font-semibold text-red-700 mb-4">Error Loading Quizzes</h2>
+            <p className="text-red-600 mb-4">{error}</p>
+            <div className="bg-red-100 p-4 rounded-md">
+              <p className="text-sm text-red-800 mb-2"><strong>Troubleshooting:</strong></p>
+              <ul className="list-disc list-inside text-sm text-red-800 space-y-1">
+                <li>Check that your MongoDB connection string in .env.local is correct</li>
+                <li>Verify that your MongoDB Atlas IP whitelist includes your current IP address</li>
+                <li>Make sure your database user has the correct permissions</li>
+                <li>Ensure your MongoDB cluster is running</li>
+              </ul>
+            </div>
+            <button 
+              onClick={() => {
+                setError(null);
+                setLoading(true);
+                fetchQuizzes();
+              }}
+              className="mt-6 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded"
+            >
+              Try Again
+            </button>
+          </div>
         </div>
       </div>
     );

@@ -1,4 +1,3 @@
-// Add more specific validation rules
 import { z } from 'zod';
 
 export const QuestionSchema = z.object({

@@ -9,14 +9,18 @@ class QuizServiceError extends Error {
 }
 
 export const quizService = {
-  async getAllQuizzes(): Promise<Quiz[]> {
+async getAllQuizzes(): Promise<Quiz[]> {
     try {
+      console.log('Service: Making request to /api/quiz');
       const response = await axios.get<Quiz[]>('/api/quiz');
+      console.log('Service: Response received', response.status);
       return response.data;
     } catch (error) {
+      console.error('Service: Error in getAllQuizzes:', error);
       if (axios.isAxiosError(error)) {
+        const errorDetails = error.response?.data?.details || '';
         throw new QuizServiceError(
-          error.response?.data?.error || 'Failed to fetch quizzes',
+          `Failed to fetch quizzes: ${error.response?.data?.error || error.message} ${errorDetails ? `(${errorDetails})` : ''}`,
           error.response?.status
         );
       }

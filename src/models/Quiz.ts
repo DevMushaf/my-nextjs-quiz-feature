@@ -20,4 +20,7 @@ const QuizSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-export default mongoose.models.Quiz || mongoose.model('Quiz', QuizSchema);
+// Check if the model is already defined to prevent overwriting during hot reload
+const Quiz = mongoose.models.Quiz || mongoose.model('Quiz', QuizSchema);
+
+export default Quiz;

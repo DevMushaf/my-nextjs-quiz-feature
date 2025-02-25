@@ -9,5 +9,8 @@ const QuizSubmissionSchema = new mongoose.Schema({
   submittedAt: { type: Date, default: Date.now }
 });
 
-export default mongoose.models.QuizSubmission || 
+// Check if the model is already defined to prevent overwriting during hot reload
+const QuizSubmission = mongoose.models.QuizSubmission || 
   mongoose.model('QuizSubmission', QuizSubmissionSchema);
+
+export default QuizSubmission;

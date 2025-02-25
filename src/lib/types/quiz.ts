@@ -6,7 +6,8 @@ export interface Quiz {
     difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
     timeLimit: number;
     questions: Question[];
-    createdBy: string;
+    createdBy?: string;
+    createdAt?: Date;
   }
   
   export interface Question {

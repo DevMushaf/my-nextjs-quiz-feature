@@ -6,6 +6,13 @@ if (!MONGODB_URI) {
   throw new Error('Please define the MONGODB_URI environment variable');
 }
 
+console.log('DB: Using MongoDB URI:', MONGODB_URI.replace(/:[^:]*@/, ':****@')); // Log URI with hidden password
+
+/**
+ * Global is used here to maintain a cached connection across hot reloads
+ * in development. This prevents connections growing exponentially
+ * during API Route usage.
+ */
 let cached = global.mongoose;
 
 if (!cached) {
@@ -14,16 +21,38 @@ if (!cached) {
 
 async function connectDB() {
   if (cached.conn) {
+    console.log('DB: Using existing connection');
     return cached.conn;
   }
 
   if (!cached.promise) {
-    cached.promise = mongoose.connect(MONGODB_URI!).then((mongoose) => {
-      return mongoose;
-    });
+    const opts = {
+      bufferCommands: false,
+    };
+
+    console.log('DB: Creating new connection to MongoDB...');
+    cached.promise = mongoose.connect(MONGODB_URI!, opts)
+      .then((mongoose) => {
+        console.log('DB: Successfully connected to MongoDB');
+        return mongoose;
+      })
+      .catch((error) => {
+        console.error('DB: Connection error:', error);
+        cached.promise = null;
+        throw error;
+      });
+  } else {
+    console.log('DB: Connection in progress, waiting...');
   }
 
-  cached.conn = await cached.promise;
+  try {
+    cached.conn = await cached.promise;
+  } catch (e) {
+    cached.promise = null;
+    console.error('DB: Error while awaiting connection:', e);
+    throw e;
+  }
+
   return cached.conn;
 }
 
