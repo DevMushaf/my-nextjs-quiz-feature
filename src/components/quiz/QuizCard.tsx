@@ -30,7 +30,7 @@ export const QuizCard: React.FC<QuizCardProps> = ({ quiz, onStart, onDelete }) =
           </div>
         </div>
 
-        <div className="flex space-x-2">
+        <div className="flex space-x-2 mb-4">
           <span className={`px-2 py-1 rounded text-xs ${
             quiz.difficulty === 'Beginner' ? 'bg-green-100 text-green-800' :
             quiz.difficulty === 'Intermediate' ? 'bg-yellow-100 text-yellow-800' :
@@ -43,7 +43,7 @@ export const QuizCard: React.FC<QuizCardProps> = ({ quiz, onStart, onDelete }) =
           </span>
         </div>
 
-        <div className="mt-4 flex space-x-2">
+        <div className="flex space-x-2">
           <Button
             onClick={() => onStart(quiz._id!)}
             className="flex-1"
