@@ -3,20 +3,17 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { quizService } from '@/lib/services/quizService';
-import { QuizCard } from '@/components/quiz/QuizCard';
-import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { Sidebar } from '@/components/Sidebar';
+import { Clock, Rocket } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Toast } from '@/components/ui/Toast';
-import { Plus } from 'lucide-react';
 import type { Quiz } from '@/lib/types/quiz';
 
-export default function QuizList() {
+export default function QuizZone() {
   const router = useRouter();
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-  const [quizToDelete, setQuizToDelete] = useState<string | null>(null);
   const [toast, setToast] = useState({
     show: false,
     message: '',
@@ -49,99 +46,124 @@ export default function QuizList() {
     router.push(`/quiz/${id}`);
   };
 
-  const handleDeleteQuiz = (id: string) => {
-    setQuizToDelete(id);
-    setConfirmDialogOpen(true);
-  };
-
-  const confirmDelete = async () => {
-    if (!quizToDelete) return;
-
-    try {
-      await quizService.deleteQuiz(quizToDelete);
-      setQuizzes(quizzes.filter(quiz => quiz._id !== quizToDelete));
-      setToast({
-        show: true,
-        message: 'Quiz deleted successfully',
-        type: 'success',
-      });
-    } catch (err) {
-      setToast({
-        show: true,
-        message: 'Failed to delete quiz',
-        type: 'error',
-      });
-    } finally {
-      setConfirmDialogOpen(false);
-      setQuizToDelete(null);
-    }
-  };
-
-  const cancelDelete = () => {
-    setConfirmDialogOpen(false);
-    setQuizToDelete(null);
-  };
-
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">Loading quizzes...</div>
+      <div className="flex h-screen">
+        <Sidebar />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-lg">Loading quizzes...</div>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg text-red-500">{error}</div>
+      <div className="flex h-screen">
+        <Sidebar />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-lg text-red-500">{error}</div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">Quiz Dashboard</h1>
-          <Button 
-            onClick={handleCreateQuiz}
-            className="flex items-center gap-2"
-          >
-            <Plus className="w-5 h-5" />
-            Create Quiz
-          </Button>
-        </div>
-
-        {quizzes.length === 0 ? (
-          <div className="bg-white p-8 rounded-lg shadow text-center">
-            <h2 className="text-xl mb-4">No quizzes available</h2>
-            <p className="mb-6 text-gray-600">
-              Create your first quiz to get started!
-            </p>
-            <Button onClick={handleCreateQuiz}>
-              Create Quiz
+    <div className="flex h-screen">
+      <Sidebar />
+      <div className="flex-1 overflow-y-auto bg-[#f5f4fa]">
+        <div className="p-8">
+          <div className="bg-[#e9e7f7] rounded-md p-6 mb-8 relative overflow-hidden">
+            <div className="relative z-10">
+              <h1 className="text-2xl font-bold mb-2">Quiz Zone</h1>
+              <p className="text-gray-600">Challenge yourself and create your own quizzes!</p>
+            </div>
+            
+            <Button 
+              onClick={handleCreateQuiz}
+              className="absolute right-6 top-1/2 transform -translate-y-1/2 flex items-center gap-2 bg-black text-white"
+            >
+              <span className="text-lg">+</span> Create Quiz
             </Button>
+            
+            {/* Background decorative elements */}
+            <div className="absolute right-0 top-0 w-full h-full opacity-10">
+              <div className="absolute right-10 top-5 text-9xl font-bold">?</div>
+              <div className="absolute right-40 top-10 text-9xl font-bold">?</div>
+              <div className="absolute right-20 top-20 text-9xl font-bold">?</div>
+            </div>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {quizzes.map((quiz) => (
-              <QuizCard
-                key={quiz._id}
-                quiz={quiz}
-                onStart={handleStartQuiz}
-                onDelete={handleDeleteQuiz}
-              />
-            ))}
-          </div>
-        )}
-      </div>
 
-      <ConfirmDialog
-        isOpen={confirmDialogOpen}
-        message="Are you sure you want to delete this quiz? This action cannot be undone."
-        onConfirm={confirmDelete}
-        onCancel={cancelDelete}
-      />
+          <h2 className="text-xl font-semibold mb-6">Explore Quiz</h2>
+
+          <div className="space-y-6">
+            {quizzes.length === 0 ? (
+              <div className="bg-white p-8 rounded-lg shadow text-center">
+                <h2 className="text-xl mb-4">No quizzes available</h2>
+                <p className="mb-6 text-gray-600">
+                  Create your first quiz to get started!
+                </p>
+                <Button onClick={handleCreateQuiz}>
+                  Create Quiz
+                </Button>
+              </div>
+            ) : (
+              quizzes.map((quiz) => (
+                <div 
+                  key={quiz._id}
+                  className="bg-white rounded-lg overflow-hidden flex"
+                >
+                  <div className="w-1/4 min-w-[200px]">
+                    <div className="h-full bg-blue-600 p-4 flex items-center justify-center">
+                      <div className="w-28 h-28 bg-blue-500 rounded flex items-center justify-center">
+                        <div className="text-white">
+                          <div className="flex justify-center mb-2">
+                            <code className="text-2xl">{"<>"}</code>
+                          </div>
+                          <div className="bg-yellow-400 w-12 h-12 mx-auto flex items-center justify-center rounded">
+                            <span className="font-bold text-lg">JS</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex-1 p-6">
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="text-xl font-semibold">{quiz.title}</h3>
+                      <span className="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm">
+                        {quiz.difficulty}
+                      </span>
+                    </div>
+                    
+                    <p className="text-gray-600 mb-4">
+                      {quiz.description}
+                    </p>
+                    
+                    <div className="flex items-center space-x-6 text-sm text-gray-500 mb-4">
+                      <div className="flex items-center">
+                        <Rocket className="w-4 h-4 mr-2" />
+                        <span>{quiz.questions.length} questions</span>
+                      </div>
+                      <div className="flex items-center">
+                        <Clock className="w-4 h-4 mr-2" />
+                        <span>{quiz.timeLimit} minutes</span>
+                      </div>
+                    </div>
+                    
+                    <Button
+                      onClick={() => handleStartQuiz(quiz._id!)}
+                      className="w-full bg-black text-white"
+                    >
+                      Start Quiz
+                    </Button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
 
       {toast.show && (
         <Toast
