@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/Sidebar';
-import { ChevronLeft, Eye, Trash2 } from 'lucide-react';
+import { ChevronLeft, Trash2 } from 'lucide-react';
 import { quizService } from '@/lib/services/quizService';
 import { Toast } from '@/components/ui/Toast';
 import type { Question, Quiz } from '@/lib/types/quiz';
@@ -31,7 +31,7 @@ export default function CreateQuiz() {
         marks: 5
       }
     ],
-    createdBy: 'user1', // Placeholder, would typically come from auth
+    createdBy: 'user1', // Simple string placeholder until auth is implemented
   });
 
   const handleQuizDetailsChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -48,6 +48,12 @@ export default function CreateQuiz() {
   const handleOptionChange = (questionIndex: number, optionIndex: number, value: string) => {
     const updatedQuestions = [...quizData.questions!];
     updatedQuestions[questionIndex].options[optionIndex] = value;
+    setQuizData(prev => ({ ...prev, questions: updatedQuestions }));
+  };
+
+  const handleCorrectAnswerChange = (questionIndex: number, value: string) => {
+    const updatedQuestions = [...quizData.questions!];
+    updatedQuestions[questionIndex].correctAnswer = value;
     setQuizData(prev => ({ ...prev, questions: updatedQuestions }));
   };
 
@@ -93,6 +99,15 @@ export default function CreateQuiz() {
           });
           return;
         }
+        
+        if (!question.correctAnswer) {
+          setToast({
+            show: true,
+            message: 'Please select a correct answer for each question',
+            type: 'error'
+          });
+          return;
+        }
       }
 
       await quizService.createQuiz(quizData as Quiz);
@@ -115,11 +130,6 @@ export default function CreateQuiz() {
     }
   };
 
-  const previewQuiz = () => {
-    // This would typically show a preview modal
-    alert('Preview functionality would be implemented here');
-  };
-
   const goBack = () => {
     router.push('/quiz');
   };
@@ -135,14 +145,6 @@ export default function CreateQuiz() {
               className="flex items-center text-gray-600 hover:text-gray-900"
             >
               <ChevronLeft className="w-5 h-5 mr-1" /> Back
-            </button>
-            
-            <button
-              onClick={previewQuiz}
-              className="flex items-center gap-2 bg-gray-800 text-white px-4 py-2 rounded-md"
-            >
-              <Eye className="w-4 h-4" />
-              Preview Quiz
             </button>
           </div>
 
@@ -246,6 +248,7 @@ export default function CreateQuiz() {
                 <button 
                   onClick={() => removeQuestion(questionIndex)}
                   className="text-gray-500 hover:text-red-500"
+                  disabled={quizData.questions!.length <= 1}
                 >
                   <Trash2 className="w-5 h-5" />
                 </button>
@@ -295,24 +298,37 @@ export default function CreateQuiz() {
                   <label className="block text-sm font-medium mb-1">Options</label>
                   <div className="space-y-2">
                     {question.options.map((option, optionIndex) => (
-                      <input
-                        key={optionIndex}
-                        type="text"
-                        placeholder={`Option ${optionIndex + 1}`}
-                        value={option}
-                        onChange={(e) => handleOptionChange(questionIndex, optionIndex, e.target.value)}
-                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      />
+                      <div key={optionIndex} className="flex items-center space-x-2">
+                        <input 
+                          type="radio" 
+                          name={`correctAnswer-${questionIndex}`}
+                          checked={question.correctAnswer === option}
+                          onChange={() => handleCorrectAnswerChange(questionIndex, option)}
+                          className="h-4 w-4"
+                          disabled={!option}
+                        />
+                        <input
+                          type="text"
+                          placeholder={`Option ${optionIndex + 1}`}
+                          value={option}
+                          onChange={(e) => handleOptionChange(questionIndex, optionIndex, e.target.value)}
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        />
+                      </div>
                     ))}
                   </div>
                 </div>
                 
                 <div>
-                  <button
-                    className="bg-black text-white text-sm px-4 py-1 rounded-md"
-                  >
-                    {question.marks} marks
-                  </button>
+                  <label className="block text-sm font-medium mb-1">Marks</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="100"
+                    value={question.marks}
+                    onChange={(e) => handleQuestionChange(questionIndex, 'marks', parseInt(e.target.value))}
+                    className="w-20 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  />
                 </div>
               </div>
             </div>

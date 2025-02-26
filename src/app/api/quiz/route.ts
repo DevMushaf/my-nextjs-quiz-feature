@@ -26,7 +26,32 @@ export async function POST(req: Request) {
     console.log('API: Creating new quiz...');
     const body = await req.json();
     await connectDB();
-    const quiz = await Quiz.create(body);
+    
+    // Ensure createdBy is a string if provided
+    if (body.createdBy && typeof body.createdBy !== 'string') {
+      body.createdBy = String(body.createdBy);
+    }
+    
+    // Clean up any properties that might cause issues
+    const sanitizedBody = {
+      title: body.title,
+      description: body.description,
+      category: body.category,
+      difficulty: body.difficulty,
+      timeLimit: body.timeLimit,
+      questions: body.questions.map((q: any) => ({
+        questionText: q.questionText,
+        questionType: q.questionType,
+        options: q.options,
+        correctAnswer: q.correctAnswer,
+        marks: q.marks,
+        image: q.image
+      })),
+      createdBy: body.createdBy || 'unknown'
+    };
+    
+    console.log('API: Creating quiz with data:', JSON.stringify(sanitizedBody, null, 2));
+    const quiz = await Quiz.create(sanitizedBody);
     console.log('API: Quiz created successfully', quiz._id);
     return NextResponse.json(quiz);
   } catch (error) {

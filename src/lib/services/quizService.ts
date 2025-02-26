@@ -9,7 +9,7 @@ class QuizServiceError extends Error {
 }
 
 export const quizService = {
-async getAllQuizzes(): Promise<Quiz[]> {
+  async getAllQuizzes(): Promise<Quiz[]> {
     try {
       console.log('Service: Making request to /api/quiz');
       const response = await axios.get<Quiz[]>('/api/quiz');
@@ -48,9 +48,24 @@ async getAllQuizzes(): Promise<Quiz[]> {
 
   async createQuiz(quizData: Omit<Quiz, '_id'>): Promise<Quiz> {
     try {
+      // Validate questions to ensure correctAnswer is set
+      quizData.questions.forEach((question, index) => {
+        if (!question.options.includes(question.correctAnswer)) {
+          throw new QuizServiceError(`Question ${index + 1} must have a valid correct answer selected from the options`);
+        }
+        
+        if (question.marks <= 0) {
+          throw new QuizServiceError(`Question ${index + 1} must have a positive mark value`);
+        }
+      });
+      
       const response = await axios.post<Quiz>('/api/quiz', quizData);
       return response.data;
     } catch (error) {
+      if (error instanceof QuizServiceError) {
+        throw error;
+      }
+      
       if (axios.isAxiosError(error)) {
         throw new QuizServiceError(
           error.response?.data?.error || 'Failed to create quiz',

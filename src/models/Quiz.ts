@@ -16,7 +16,7 @@ const QuizSchema = new mongoose.Schema({
   difficulty: { type: String, required: true },
   timeLimit: { type: Number, required: true },
   questions: [QuestionSchema],
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  createdBy: { type: String }, // Changed from ObjectId to String
   createdAt: { type: Date, default: Date.now }
 });
 

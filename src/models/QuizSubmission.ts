@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const QuizSubmissionSchema = new mongoose.Schema({
   quiz: { type: mongoose.Schema.Types.ObjectId, ref: 'Quiz', required: true },
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  user: { type: String, required: true }, // Changed from ObjectId to String
   answers: [{ type: String }],
   score: { type: Number, required: true },
   maxScore: { type: Number, required: true },

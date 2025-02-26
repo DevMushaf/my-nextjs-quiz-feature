@@ -41,9 +41,10 @@ export async function POST(req: Request) {
       0
     );
 
+    // Create submission with string userId (no longer trying to convert to ObjectId)
     const submission = await QuizSubmission.create({
       quiz: quizId,
-      user: userId,
+      user: userId, // Now expecting a string
       answers,
       score,
       maxScore
@@ -55,9 +56,13 @@ export async function POST(req: Request) {
       submission: submission._id
     });
   } catch (error) {
+    console.error('API Error in quiz submission:', error);
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.errors }, { status: 400 });
     }
-    return NextResponse.json({ error: 'Failed to submit quiz' }, { status: 500 });
+    return NextResponse.json({ 
+      error: 'Failed to submit quiz',
+      details: error instanceof Error ? error.message : String(error)
+    }, { status: 500 });
   }
 }

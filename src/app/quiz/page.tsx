@@ -7,6 +7,7 @@ import { Sidebar } from '@/components/Sidebar';
 import { Clock, Rocket } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Toast } from '@/components/ui/Toast';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import type { Quiz } from '@/lib/types/quiz';
 
 export default function QuizZone() {
@@ -18,6 +19,11 @@ export default function QuizZone() {
     show: false,
     message: '',
     type: 'success' as const,
+  });
+  const [confirmDialog, setConfirmDialog] = useState({
+    isOpen: false,
+    message: '',
+    quizId: '',
   });
 
   useEffect(() => {
@@ -45,11 +51,47 @@ export default function QuizZone() {
   };
 
   const handleCreateQuiz = () => {
-    router.push('/quiz/create');
+    console.log('Redirecting to create quiz page...');
+    window.location.href = '/quiz/create';
   };
 
   const handleStartQuiz = (id: string) => {
     router.push(`/quiz/${id}`);
+  };
+
+  const handleDeleteQuiz = (id: string) => {
+    setConfirmDialog({
+      isOpen: true,
+      message: 'Are you sure you want to delete this quiz?',
+      quizId: id,
+    });
+  };
+
+  const confirmDeleteQuiz = async () => {
+    try {
+      await quizService.deleteQuiz(confirmDialog.quizId);
+      
+      // Update quizzes list
+      setQuizzes(quizzes.filter(quiz => quiz._id !== confirmDialog.quizId));
+      
+      setToast({
+        show: true,
+        message: 'Quiz deleted successfully',
+        type: 'success'
+      });
+    } catch (err) {
+      setToast({
+        show: true,
+        message: 'Failed to delete quiz',
+        type: 'error'
+      });
+    } finally {
+      setConfirmDialog({ isOpen: false, message: '', quizId: '' });
+    }
+  };
+
+  const cancelDeleteQuiz = () => {
+    setConfirmDialog({ isOpen: false, message: '', quizId: '' });
   };
 
   if (loading) {
@@ -63,7 +105,7 @@ export default function QuizZone() {
     );
   }
 
-   if (error) {
+  if (error) {
     return (
       <div className="flex h-screen">
         <Sidebar />
@@ -107,12 +149,15 @@ export default function QuizZone() {
               <p className="text-gray-600">Challenge yourself and create your own quizzes!</p>
             </div>
             
-            <Button 
-              onClick={handleCreateQuiz}
-              className="absolute right-6 top-1/2 transform -translate-y-1/2 flex items-center gap-2 bg-black text-white"
-            >
-              <span className="text-lg">+</span> Create Quiz
-            </Button>
+            {/* This is the top-right Create Quiz button */}
+            <a href="/quiz/create" className="absolute right-6 top-1/2 transform -translate-y-1/2">
+              <button 
+                className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-md hover:bg-gray-800"
+                onClick={() => window.location.href = '/quiz/create'}
+              >
+                <span className="text-lg">+</span> Create Quiz
+              </button>
+            </a>
             
             {/* Background decorative elements */}
             <div className="absolute right-0 top-0 w-full h-full opacity-10">
@@ -124,47 +169,38 @@ export default function QuizZone() {
 
           <h2 className="text-xl font-semibold mb-6">Explore Quiz</h2>
 
-          <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {quizzes.length === 0 ? (
-              <div className="bg-white p-8 rounded-lg shadow text-center">
+              <div className="bg-white p-8 rounded-lg shadow text-center col-span-full">
                 <h2 className="text-xl mb-4">No quizzes available</h2>
                 <p className="mb-6 text-gray-600">
                   Create your first quiz to get started!
                 </p>
-                <Button onClick={handleCreateQuiz}>
-                  Create Quiz
-                </Button>
+                <a href="/quiz/create">
+                  <button className="bg-black text-white px-4 py-2 rounded-md hover:bg-gray-800">
+                    Create Quiz
+                  </button>
+                </a>
               </div>
             ) : (
               quizzes.map((quiz) => (
                 <div 
                   key={quiz._id}
-                  className="bg-white rounded-lg overflow-hidden flex"
+                  className="bg-white rounded-lg overflow-hidden shadow-sm"
                 >
-                  <div className="w-1/4 min-w-[200px]">
-                    <div className="h-full bg-blue-600 p-4 flex items-center justify-center">
-                      <div className="w-28 h-28 bg-blue-500 rounded flex items-center justify-center">
-                        <div className="text-white">
-                          <div className="flex justify-center mb-2">
-                            <code className="text-2xl">{"<>"}</code>
-                          </div>
-                          <div className="bg-yellow-400 w-12 h-12 mx-auto flex items-center justify-center rounded">
-                            <span className="font-bold text-lg">JS</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex-1 p-6">
+                  <div className="p-6">
                     <div className="flex justify-between items-start mb-2">
                       <h3 className="text-xl font-semibold">{quiz.title}</h3>
-                      <span className="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm">
+                      <span className={`px-3 py-1 rounded-full text-sm ${
+                        quiz.difficulty === 'Beginner' ? 'bg-green-100 text-green-800' : 
+                        quiz.difficulty === 'Intermediate' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-red-100 text-red-800'
+                      }`}>
                         {quiz.difficulty}
                       </span>
                     </div>
                     
-                    <p className="text-gray-600 mb-4">
+                    <p className="text-gray-600 mb-4 line-clamp-2">
                       {quiz.description}
                     </p>
                     
@@ -179,12 +215,20 @@ export default function QuizZone() {
                       </div>
                     </div>
                     
-                    <Button
-                      onClick={() => handleStartQuiz(quiz._id!)}
-                      className="w-full bg-black text-white"
-                    >
-                      Start Quiz
-                    </Button>
+                    <div className="flex space-x-4">
+                      <button
+                        onClick={() => handleStartQuiz(quiz._id!)}
+                        className="flex-1 bg-black text-white py-2 px-4 rounded-md hover:bg-gray-800"
+                      >
+                        Start Quiz
+                      </button>
+                      <button
+                        onClick={() => handleDeleteQuiz(quiz._id!)}
+                        className="text-red-500 border border-red-200 bg-white hover:bg-red-50 py-2 px-4 rounded-md"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))
@@ -200,6 +244,13 @@ export default function QuizZone() {
           onClose={() => setToast({ ...toast, show: false })}
         />
       )}
+
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        message={confirmDialog.message}
+        onConfirm={confirmDeleteQuiz}
+        onCancel={cancelDeleteQuiz}
+      />
     </div>
   );
 }
