@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { quizService } from '@/lib/services/quizService';
 import { Sidebar } from '@/components/Sidebar';
 import { Clock, Rocket } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
 import { Toast } from '@/components/ui/Toast';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import type { Quiz } from '@/lib/types/quiz';
@@ -50,9 +49,9 @@ export default function QuizZone() {
     }
   };
 
-  const handleCreateQuiz = () => {
-    console.log('Redirecting to create quiz page...');
-    window.location.href = '/quiz/create';
+  const navigateToCreateQuiz = () => {
+    console.log("Navigating to create quiz page");
+    window.location.href = "/quiz/create";
   };
 
   const handleStartQuiz = (id: string) => {
@@ -149,15 +148,16 @@ export default function QuizZone() {
               <p className="text-gray-600">Challenge yourself and create your own quizzes!</p>
             </div>
             
-            {/* This is the top-right Create Quiz button */}
-            <a href="/quiz/create" className="absolute right-6 top-1/2 transform -translate-y-1/2">
+            {/* Create Quiz button using onClick with a direct HTML button */}
+            <div className="absolute right-6 top-1/2 transform -translate-y-1/2 z-20">
               <button 
-                className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-md hover:bg-gray-800"
-                onClick={() => window.location.href = '/quiz/create'}
+                onClick={navigateToCreateQuiz}
+                className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-md hover:bg-gray-800 cursor-pointer"
+                type="button"
               >
                 <span className="text-lg">+</span> Create Quiz
               </button>
-            </a>
+            </div>
             
             {/* Background decorative elements */}
             <div className="absolute right-0 top-0 w-full h-full opacity-10">
@@ -176,11 +176,12 @@ export default function QuizZone() {
                 <p className="mb-6 text-gray-600">
                   Create your first quiz to get started!
                 </p>
-                <a href="/quiz/create">
-                  <button className="bg-black text-white px-4 py-2 rounded-md hover:bg-gray-800">
-                    Create Quiz
-                  </button>
-                </a>
+                <button
+                  onClick={navigateToCreateQuiz}
+                  className="bg-black text-white px-4 py-2 rounded-md hover:bg-gray-800"
+                >
+                  Create Quiz
+                </button>
               </div>
             ) : (
               quizzes.map((quiz) => (
