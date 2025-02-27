@@ -26,10 +26,10 @@ export const Sidebar = () => {
   ];
 
   return (
-    <div className="bg-[#1c1c1c] text-white w-[224px] min-h-screen flex flex-col">
-      <div className="flex items-center justify-between p-4 border-b border-gray-800">
+    <div className="bg-blue-900 text-white w-[224px] min-h-screen flex flex-col font-mono">
+      <div className="flex items-center justify-between p-4 border-b border-blue-800">
         <h1 className="text-xl font-bold">StudyZen</h1>
-        <button className="text-gray-400 hover:text-white">
+        <button className="text-blue-300 hover:text-white">
           <span className="text-xl">«</span>
         </button>
       </div>
@@ -41,8 +41,8 @@ export const Sidebar = () => {
             href={item.href}
             className={`flex items-center gap-3 px-4 py-3 ${
               pathname.startsWith(item.href) 
-                ? 'text-white' 
-                : 'text-gray-400 hover:text-white'
+                ? 'text-white bg-blue-800' 
+                : 'text-blue-300 hover:text-white hover:bg-blue-800'
             }`}
           >
             {item.icon}
@@ -51,9 +51,9 @@ export const Sidebar = () => {
         ))}
       </nav>
       
-      <div className="mt-auto border-t border-gray-800 p-4">
+      <div className="mt-auto border-t border-blue-800 p-4">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-full bg-gray-700 overflow-hidden">
+          <div className="w-10 h-10 rounded-full bg-blue-700 overflow-hidden">
             <img 
               src="https://via.placeholder.com/40" 
               alt="User" 
@@ -63,7 +63,7 @@ export const Sidebar = () => {
           <span>John Doe</span>
         </div>
         
-        <button className="flex items-center gap-2 text-gray-400 hover:text-white w-full p-2">
+        <button className="flex items-center gap-2 text-blue-300 hover:text-white w-full p-2">
           <LogOut className="w-5 h-5" />
           <span>Logout</span>
         </button>

@@ -6,8 +6,10 @@ import Quiz from '@/models/Quiz';
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
+  const { params } = context;
+  
   try {
     await connectDB();
     const quiz = await Quiz.findById(params.id);

@@ -17,12 +17,16 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto Mono', monospace;
 }
 
 @layer base {
   h1, h2, h3, h4, h5, h6 {
-    @apply font-medium;
+    @apply font-medium text-blue-900;
+  }
+  
+  p {
+    @apply text-blue-600;
   }
 }
 

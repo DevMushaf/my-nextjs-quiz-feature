@@ -15,9 +15,9 @@ export const Toast = ({ message, type = 'success', onClose }: ToastProps) => {
   }, [onClose]);
 
   return (
-    <div className={`fixed bottom-4 right-4 p-4 rounded-md shadow-lg ${
-      type === 'error' ? 'bg-red-500' : 'bg-green-500'
-    } text-white`}>
+    <div className={`fixed bottom-4 right-4 p-4 rounded-md shadow-lg font-mono ${
+      type === 'error' ? 'bg-red-500' : 'bg-blue-600'
+    } text-white z-50`}>
       {message}
     </div>
   );
