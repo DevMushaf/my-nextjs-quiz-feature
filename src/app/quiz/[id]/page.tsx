@@ -182,14 +182,6 @@ const TakeQuiz = ({ params }: { params: { id: string } }) => {
               {quiz.questions[currentQuestion].questionText}
             </h2>
 
-            {quiz.questions[currentQuestion].image && (
-              <img
-                src={quiz.questions[currentQuestion].image}
-                alt="Question"
-                className="max-w-full rounded-lg"
-              />
-            )}
-
             <div className="space-y-3">
               {quiz.questions[currentQuestion].options.map((option, index) => (
                 <label

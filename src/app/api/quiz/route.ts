@@ -45,7 +45,6 @@ export async function POST(req: Request) {
         options: q.options,
         correctAnswer: q.correctAnswer,
         marks: q.marks,
-        image: q.image
       })),
       createdBy: body.createdBy || 'unknown'
     };

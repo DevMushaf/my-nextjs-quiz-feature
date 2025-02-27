@@ -286,15 +286,6 @@ export default function CreateQuiz() {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium mb-1 text-blue-600">Image(optional)</label>
-                  <input
-                    type="file"
-                    className="w-full border border-blue-200 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    accept="image/*"
-                  />
-                </div>
-                
-                <div>
                   <label className="block text-sm font-medium mb-1 text-blue-600">Options</label>
                   <div className="space-y-2">
                     {question.options.map((option, optionIndex) => (

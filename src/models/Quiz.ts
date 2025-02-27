@@ -5,8 +5,7 @@ const QuestionSchema = new mongoose.Schema({
   questionType: { type: String, required: true },
   options: [{ type: String }],
   correctAnswer: { type: String, required: true },
-  marks: { type: Number, required: true },
-  image: { type: String }
+  marks: { type: Number, required: true }
 });
 
 const QuizSchema = new mongoose.Schema({

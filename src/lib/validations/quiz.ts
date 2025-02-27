@@ -12,8 +12,8 @@ export const QuestionSchema = z.object({
     .min(1, "Correct answer is required"),
   marks: z.number()
     .min(1, "Marks must be at least 1")
-    .max(100, "Marks cannot exceed 100"),
-  image: z.string().url().optional()
+    .max(100, "Marks cannot exceed 100")
+  
 }).refine((data) => {
   return data.options.includes(data.correctAnswer);
 }, {
